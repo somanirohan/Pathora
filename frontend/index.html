@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pathora | Adaptive Indoor Navigation & Crowd Evacuation Framework</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="brand-logo-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="brand-title">PATHORA</h1>
+      </div>
+      <span class="brand-tag">Adaptive Search Engine</span>
+    </div>
+
+    <div class="header-status-pills">
+      <div class="status-pill">
+        <span id="statusDot" class="status-dot"></span>
+        <span id="systemStatusText">Operational (Idle)</span>
+      </div>
+      <div class="status-pill">
+        <span id="nodeCountBadge">Loading Graph...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace Layout -->
+  <main class="app-container">
+    <!-- Left Sidebar: Controls & Constraints -->
+    <aside class="sidebar">
+      <!-- Operational Mode Selector -->
+      <section class="sidebar-section">
+        <div class="section-label">Operational Mode</div>
+        <div class="mode-tabs">
+          <button class="mode-tab active" data-mode="navigation">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            Navigation
+          </button>
+          <button class="mode-tab" data-mode="crowd_flow">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+            Crowd Flow
+          </button>
+          <button class="mode-tab" data-mode="evacuation">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1.1 0 2 .9 2 2v1.08C17.61 5.57 20 8.5 20 12c0 4.42-3.58 8-8 8s-8-3.58-8-8c0-3.5 2.39-6.43 6-6.92V4c0-1.1.9-2 2-2zm-1 6v5l4.25 2.52.77-1.28-3.52-2.09V8H11z"/></svg>
+            Evacuation
+          </button>
+        </div>
+      </section>
+
+      <!-- Algorithm & Heuristic Selection -->
+      <section class="sidebar-section">
+        <div class="section-label">Algorithmic Strategy</div>
+        <div class="control-group">
+          <label class="control-label" for="algSelect">Search Engine</label>
+          <select id="algSelect" class="control-select">
+            <option value="adaptive">Adaptive Meta-Selector (Dynamic)</option>
+            <option value="astar">A* Heuristic Search</option>
+            <option value="dijkstra">Dijkstra's Algorithm</option>
+            <option value="gbfs">Greedy Best-First Search (GBFS)</option>
+            <option value="bfs">Breadth-First Search (BFS)</option>
+            <option value="dfs">Depth-First Search (DFS)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="mobilitySelect">Mobility Profile</label>
+          <select id="mobilitySelect" class="control-select">
+            <option value="standard">Standard Pedestrian</option>
+            <option value="wheelchair">Wheelchair / Accessible (Ramps Only)</option>
+            <option value="responder">Emergency First Responder</option>
+          </select>
+        </div>
+
+        <div class="control-group" style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="chkAvoidStairs" style="accent-color: var(--accent-cyan);">
+          <label for="chkAvoidStairs" style="font-size: 0.8rem; color: var(--text-muted); cursor: pointer;">Avoid Stairways (Elevator/Ramp Preferential)</label>
+        </div>
+      </section>
+
+      <!-- Multi-Objective Optimization Weights -->
+      <section class="sidebar-section">
+        <div class="section-label">Multi-Objective Pareto Weights</div>
+        
+        <div class="control-group">
+          <div class="control-label">
+            <span>Distance Cost (w_dist)</span>
+            <span id="weightDistanceVal" class="slider-val">1.0</span>
+          </div>
+          <div class="slider-container">
+            <input type="range" id="weightDistance" class="control-slider" min="0" max="5" step="0.5" value="1.0">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div class="control-label">
+            <span>Hazard Risk Penalty (w_risk)</span>
+            <span id="weightRiskVal" class="slider-val">2.5</span>
+          </div>
+          <div class="slider-container">
+            <input type="range" id="weightRisk" class="control-slider" min="0" max="10" step="0.5" value="2.5">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div class="control-label">
+            <span>Congestion Avoidance (w_crowd)</span>
+            <span id="weightCongestionVal" class="slider-val">1.5</span>
+          </div>
+          <div class="slider-container">
+            <input type="range" id="weightCongestion" class="control-slider" min="0" max="10" step="0.5" value="1.5">
+          </div>
+        </div>
+      </section>
+
+      <!-- Action Buttons -->
+      <section class="sidebar-section">
+        <button id="btnCalculate" class="btn btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+          Calculate Optimal Path
+        </button>
+
+        <div class="btn-group-row">
+          <button id="btnCompare" class="btn btn-secondary" style="font-size: 0.78rem;">Compare All</button>
+          <button id="btnResetEnv" class="btn btn-secondary" style="font-size: 0.78rem;">Reset Map</button>
+        </div>
+      </section>
+
+      <!-- Simulation & Crowd Controls -->
+      <section class="sidebar-section" id="crowdControlsSection">
+        <div class="section-label">Multi-Agent Evacuation Dynamics</div>
+        <div class="control-group">
+          <label class="control-label" for="spawnCountInput">Spawn Crowd Size</label>
+          <input type="number" id="spawnCountInput" class="control-input" value="25" min="5" max="150">
+        </div>
+
+        <div class="btn-group-row">
+          <button id="btnSpawnCrowd" class="btn btn-secondary" style="font-size: 0.78rem;">Spawn Agents</button>
+          <button id="btnSimStep" class="btn btn-secondary" style="font-size: 0.78rem;">Step Tick</button>
+        </div>
+        
+        <div style="margin-top: 8px;">
+          <button id="btnSimToggle" class="btn btn-secondary">Run Dynamic Sim</button>
+        </div>
+      </section>
+    </aside>
+
+    <!-- Canvas Workspace & Stage -->
+    <section class="canvas-stage">
+      <!-- Top Canvas Toolset -->
+      <div class="canvas-toolbar">
+        <button class="tool-btn active" data-tool="select" title="Inspect Node / Hover Info">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 2l12 11.2-5.8.5 3.3 7.3-2.2 1-3.2-7.4L7 18.5V2z"/></svg>
+        </button>
+        <button class="tool-btn" data-tool="start" title="Set Start Position">
+          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8" fill="#3b82f6"/></svg>
+        </button>
+        <button class="tool-btn" data-tool="target" title="Set Destination Target">
+          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8" fill="#ef4444"/></svg>
+        </button>
+        <button class="tool-btn" data-tool="hazard" title="Toggle Fire/Smoke Hazard Point">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z" fill="#f43f5e"/></svg>
+        </button>
+        <button class="tool-btn" data-tool="wall" title="Toggle Wall / Structural Obstacle">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm-7 2h6v3h-6V6zm-2 0v3H4V6h6zm-6 5h6v3H4v-3zm8 0h6v3h-6v-3zm-8 5h6v3H4v-3zm8 0h6v3h-6v-3z"/></svg>
+        </button>
+        <button class="tool-btn" data-tool="crowd" title="Inject Crowd Hotspot">
+          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="7" fill="#f59e0b"/></svg>
+        </button>
+      </div>
+
+      <!-- Floor Switcher -->
+      <div class="floor-switcher">
+        <button class="floor-btn active" data-floor="0">FL 0 (Ground Atrium)</button>
+        <button class="floor-btn" data-floor="1">FL 1 (Upper Suites)</button>
+      </div>
+
+      <!-- Main Canvas -->
+      <canvas id="mapCanvas"></canvas>
+
+      <!-- Hover Tooltip -->
+      <div id="nodeTooltip"></div>
+
+      <!-- Bottom Telemetry Tray -->
+      <div class="telemetry-tray" id="telemetryTray">
+        <div class="tray-handle" id="trayHeader">
+          <div class="tray-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3v18h18V3H3zm16 16H5V5h14v14zM7 10h2v7H7v-7zm4-3h2v10h-2V7zm4 6h2v4h-2v-4z"/></svg>
+            Algorithmic Telemetry & Real-Time Performance Analytics
+          </div>
+          <span style="font-size: 0.72rem; color: var(--text-dim);">[Click to Expand/Collapse]</span>
+        </div>
+
+        <!-- Evacuation Alert Banner (Dynamic) -->
+        <div id="evacuationAlertBanner" style="display: none; background: rgba(244, 63, 94, 0.15); border: 1px solid var(--accent-rose); border-radius: var(--radius-sm); padding: 8px 14px; margin-bottom: 12px; font-size: 0.8rem; color: #fb7185; align-items: center; justify-content: space-between;">
+          <span><strong>⚠️ HAZARD DETECTED:</strong> Adaptive emergency egress routing active. Directing agents to nearest low-risk safe emergency exit.</span>
+        </div>
+
+        <div id="adaptiveReasonBox" style="display: none; background: rgba(6, 182, 212, 0.12); border: 1px solid var(--accent-cyan); border-radius: var(--radius-sm); padding: 8px 14px; margin-bottom: 12px; font-size: 0.8rem; color: #a5f3fc;">
+          <strong>Adaptive Selection Rationale:</strong> <span id="adaptiveReasonText"></span>
+        </div>
+
+        <div class="metrics-cards-grid">
+          <div class="metric-card">
+            <div class="metric-label">Selected Algorithm</div>
+            <div class="metric-value" id="metricAlgName" style="font-size: 0.95rem;">-</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Execution Time</div>
+            <div class="metric-value" id="metricExecTime">- μs</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Nodes Expanded</div>
+            <div class="metric-value" id="metricNodesExplored">-</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Total Distance</div>
+            <div class="metric-value" id="metricPathDist">- m</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Composite Cost</div>
+            <div class="metric-value" id="metricCompositeCost">-</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Complexity (Time | Space)</div>
+            <div class="metric-value" id="metricComplexity" style="font-size: 0.82rem;">-</div>
+          </div>
+        </div>
+
+        <!-- Crowd Simulation Metrics Row -->
+        <div class="metrics-cards-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 14px;">
+          <div class="metric-card">
+            <div class="metric-label">Simulation Tick</div>
+            <div class="metric-value" id="metricSimTick">0</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Successfully Evacuated</div>
+            <div class="metric-value" id="metricEvacuated" style="color: var(--accent-emerald);">0</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Trapped / Compromised</div>
+            <div class="metric-value" id="metricTrapped" style="color: var(--accent-rose);">0</div>
+          </div>
+        </div>
+
+        <!-- Benchmark Comparison Section -->
+        <div id="benchmarkSection" style="display: none;">
+          <div class="section-label" style="margin-bottom: 8px;">Side-by-Side Algorithm Benchmark Race</div>
+          <div class="benchmark-table-wrap">
+            <table class="benchmark-table">
+              <thead>
+                <tr>
+                  <th>Algorithm</th>
+                  <th>Runtime (μs)</th>
+                  <th>Nodes Expanded</th>
+                  <th>Path Distance</th>
+                  <th>Composite Cost</th>
+                  <th>Time Complexity</th>
+                  <th>Space Complexity</th>
+                </tr>
+              </thead>
+              <tbody id="benchmarkTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
